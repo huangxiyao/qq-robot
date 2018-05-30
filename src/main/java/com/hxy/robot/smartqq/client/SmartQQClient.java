@@ -171,7 +171,8 @@ public class SmartQQClient implements Closeable {
                 for (String content : result.split("','")) {
                     if (content.startsWith("http")) {
                         LOGGER.info("正在登录，请稍后");
-
+                        //登陆成功了
+                        ConfigRepository.put("qrCodeLoginFlag", "true");
                         return content;
                     }
                 }

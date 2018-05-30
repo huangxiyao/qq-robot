@@ -15,6 +15,7 @@
  */
 package com.hxy.robot.service;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.hxy.robot.smartqq.callback.MessageCallback;
 import com.hxy.robot.smartqq.client.SmartQQClient;
@@ -417,6 +418,7 @@ public class QQService {
     }
 
     private void onQQGroupMessage(final GroupMessage message) {
+    	LOGGER.info("群消息："+JSON.toJSONString(message));
         final long groupId = message.getGroupId();
 
         final String content = message.getContent();
