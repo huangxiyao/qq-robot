@@ -7,7 +7,7 @@
             <level>ERROR</level>
         </filter>-->
         <encoder>
-            <pattern>%d{HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss} [%thread] %-5level %logger{36} [%method] [%line] - %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -20,7 +20,7 @@
 		  </rollingPolicy>
           <layout class="ch.qos.logback.classic.PatternLayout">
                <Pattern>
-                %d{yyyy-MM-dd HH:mm:ss} -%msg%n    
+                <pattern>%d{HH:mm:ss} [%thread] %-5level %logger{36} [%method] [%line] - %msg%n</pattern>
                </Pattern>
           </layout>
     </appender>

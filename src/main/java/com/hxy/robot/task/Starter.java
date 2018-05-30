@@ -23,6 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hxy.robot.service.QQService;
+import com.hxy.util.CommandRepository;
+import com.hxy.util.ConfigRepository;
 
 @Service
 public class Starter {
@@ -34,17 +36,9 @@ public class Starter {
 	/**
 	 * 初始化智能qq
 	 */
-	//@PostConstruct
+	@PostConstruct
 	public void init(){
-		logger.info("开始初始化qq");
-		//初始化qq客户端
-		new Thread(() -> {
-            try {
-                Thread.sleep(3000);
-            } catch (final Exception e) {
-            	logger.error("发生线程中断异常",e);
-            }
-            qqService.initQQClient();
-        }).start();
+		CommandRepository.put("电影票订单出票量","该服务还没有提供啊，请稍后！");
+		CommandRepository.put("电影票差异数据","该服务还没有提供啊，请稍后！");
 	}
 }

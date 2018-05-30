@@ -25,6 +25,7 @@ import com.hxy.robot.smartqq.model.Group;
 import com.hxy.robot.smartqq.model.GroupInfo;
 import com.hxy.robot.smartqq.model.GroupMessage;
 import com.hxy.robot.smartqq.model.Message;
+import com.hxy.util.CommandRepository;
 import com.hxy.util.ConfigRepository;
 
 import org.apache.commons.lang.StringUtils;
@@ -395,7 +396,14 @@ public class QQService {
         }
 
         LOGGER.info("Pushing [msg=" + msg + "] to QQ qun [" + group.getName() + "]");
-        xiaoV.sendMessageToGroup(groupId, msg);
+        if(StringUtils.isNotEmpty(msg) && msg.contains("\n")){
+        	String[] msgs = msg.split("\n");
+        	for(int i =0; i < msgs.length; i++){
+        		xiaoV.sendMessageToGroup(groupId, msgs[i]);
+        	}
+        }else{
+        	xiaoV.sendMessageToGroup(groupId, msg);
+        }
     }
 
     private void sendMessageToDiscuss(final Long discussId, final String msg) {
@@ -434,7 +442,21 @@ public class QQService {
         if (StringUtils.contains(content, qqRobotName)
                 || (StringUtils.length(content) > 6
                 && (StringUtils.contains(content, "?") || StringUtils.contains(content, "？") || StringUtils.contains(content, "问")))) {
-            msg = answer(content, userName);
+        	//默认机器人来回答
+        	boolean anwserFlag = true;
+        	for (String key : CommandRepository.getDataMap().keySet()) {  
+        	     String value = CommandRepository.getDataMap().get(key); 
+        	     String msgcontent = replaceBotName(content);
+        	     if((StringUtils.isNotEmpty(key) && key.contains(msgcontent) || (StringUtils.isNotEmpty(msgcontent) && msgcontent.contains(key)))){
+        	    	 msg = value;
+        	    	 //不让机器人自己回答
+        	    	 anwserFlag = false;
+        	    	 break; 
+        	     }
+        	}  
+        	if(anwserFlag){
+        		msg = answer(content, userName);
+            }        	
         }
 
         if (StringUtils.isBlank(msg)) {

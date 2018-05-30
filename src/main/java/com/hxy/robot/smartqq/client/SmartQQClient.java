@@ -674,7 +674,7 @@ public class SmartQQClient implements Closeable {
         JSONObject json = JSON.parseObject(response.getBody());
         Integer errCode = json.getInteger("retcode");
         if (errCode != null && errCode == 0) {
-            LOGGER.debug("发送成功");
+            LOGGER.info("qq发送到群消息成功");
         } else {
             LOGGER.error(String.format("发送失败，Api返回码[%d]", json.getInteger("retcode")));
         }
