@@ -27,6 +27,8 @@ import com.hxy.robot.smartqq.model.GroupMessage;
 import com.hxy.robot.smartqq.model.Message;
 import com.hxy.util.CommandRepository;
 import com.hxy.util.ConfigRepository;
+import com.hxy.util.MapperRepository;
+import com.hxy.util.QQGroupRepository;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -428,7 +430,7 @@ public class QQService {
     private void onQQGroupMessage(final GroupMessage message) {
     	LOGGER.info("群消息："+JSON.toJSONString(message));
         final long groupId = message.getGroupId();
-
+        
         final String content = message.getContent();
         final String userName = Long.toHexString(message.getUserId());
         // Push to third system
@@ -442,44 +444,82 @@ public class QQService {
         if (StringUtils.contains(content, qqRobotName)
                 || (StringUtils.length(content) > 6
                 && (StringUtils.contains(content, "?") || StringUtils.contains(content, "？") || StringUtils.contains(content, "问")))) {
-        	//默认机器人来回答
-        	boolean anwserFlag = true;
-        	for (String key : CommandRepository.getDataMap().keySet()) {  
-        	     String value = CommandRepository.getDataMap().get(key); 
-        	     String msgcontent = replaceBotName(content);
-        	     if((StringUtils.isNotEmpty(key) && key.contains(msgcontent) || (StringUtils.isNotEmpty(msgcontent) && msgcontent.contains(key)))){
-        	    	 msg = value;
-        	    	 //不让机器人自己回答
-        	    	 anwserFlag = false;
-        	    	 break; 
-        	     }
-        	}  
-        	if(anwserFlag){
-        		msg = answer(content, userName);
-            }        	
-        }
-
-        if (StringUtils.isBlank(msg)) {
-            return;
-        }
-
-        if (RandomUtils.nextFloat() >= 0.9) {
-            Long latestAdTime = GROUP_AD_TIME.get(groupId);
-            if (null == latestAdTime) {
-                latestAdTime = 0L;
-            }
-
-            final long now = System.currentTimeMillis();
-
-            if (now - latestAdTime > 1000 * 60 * 30) {
-                msg = msg + "。\n" + ADS.get(RandomUtils.nextInt(ADS.size()));
-
-                GROUP_AD_TIME.put(groupId, now);
+        	//判断当前机器人服务的群
+        	if(MapperRepository.get(Long.toString(groupId)) == null){
+        		sendMessageToGroup(groupId, "尚未提供对应服务，请申请权限");
+        		return;
+        	}
+        	int actionType = MapperRepository.get(Long.toString(groupId));
+            switch(actionType){
+            	case 0:
+            		//智能机器人
+            		LOGGER.info("智能机器人群访问入口");
+            		sendMessageToGroupID(groupId, content, null, userName, msg);
+            		
+            		break;
+            	case 1:
+            		//电影票
+            		LOGGER.info("电影票群访问入口");
+            		Map<String,String> mapd = JSON.parseObject(CommandRepository.get("1"), Map.class);
+            		sendMessageToGroupID(groupId, content, mapd, userName, msg);
+            		break;
+            	case 2:
+            		//党费
+            		LOGGER.info("党费群访问入口");
+            		Map<String,String> mapDangFei = JSON.parseObject(CommandRepository.get("2"), Map.class);
+            		sendMessageToGroupID(groupId, content, mapDangFei, userName, msg);
+            		break;
+            	default:
+            		LOGGER.info("默认群访问入口");
+            		sendMessageToGroupID(groupId, content, null, userName, msg);
+            		break;
             }
         }
-
-        sendMessageToGroup(groupId, msg);
     }
+
+
+	private void sendMessageToGroupID(final long groupId, final String content, Map<String,String> functionMap, final String userName, String msg) {
+		//默认机器人来回答
+			boolean anwserFlag = true;
+			if(functionMap != null){
+				for (String key : functionMap.keySet()) {  
+				     String value = functionMap.get(key); 
+				     String msgcontent = replaceBotName(content);
+				     LOGGER.info("key:"+key +", value:"+value);
+				     if((StringUtils.isNotEmpty(key) && key.contains(msgcontent) || (StringUtils.isNotEmpty(msgcontent) && msgcontent.contains(key)))){
+				    	 msg = value;
+				    	 //不让机器人自己回答
+				    	 anwserFlag = false;
+				    	 break; 
+				     }
+				}  
+			}
+			
+			if(anwserFlag){
+				msg = answer(content, userName);
+		    }        	
+		    
+		    if (StringUtils.isBlank(msg)) {
+		        return;
+		    }
+
+		    if (RandomUtils.nextFloat() >= 0.9) {
+		        Long latestAdTime = GROUP_AD_TIME.get(groupId);
+		        if (null == latestAdTime) {
+		            latestAdTime = 0L;
+		        }
+
+		        final long now = System.currentTimeMillis();
+
+		        if (now - latestAdTime > 1000 * 60 * 30) {
+		            msg = msg + "。\n" + ADS.get(RandomUtils.nextInt(ADS.size()));
+
+		            GROUP_AD_TIME.put(groupId, now);
+		        }
+		    }
+
+		    sendMessageToGroup(groupId, msg);
+	}
 
     private void onQQDiscussMessage(final DiscussMessage message) {
         final long discussId = message.getDiscussId();
@@ -636,6 +676,18 @@ public class QQService {
         final StringBuilder msgBuilder = new StringBuilder();
         msgBuilder.append("Reloaded groups: \n");
         for (final Group g : groups) {
+        	LOGGER.info("groupKey:"+Long.toString(g.getId())+ ", groupName:" +g.getName());
+        	//映射group到固定的方法
+        	Map<String, Integer> dataMap = QQGroupRepository.getDataMap();
+        	for(String key : dataMap.keySet()){
+        		LOGGER.info("Key:"+key+ ", type:" +key+ ", GroupValue:"+ dataMap.get(key));
+        		if((StringUtils.isNotEmpty(key) && key.contains(g.getName())) || (StringUtils.isNotEmpty(g.getName()) && g.getName().contains(key))){
+        			MapperRepository.put(Long.toString(g.getId()), dataMap.get(key));
+        			LOGGER.info("mapperKey:"+Long.toString(g.getId())+ ", type:" +key+ ", mapperValue:"+ dataMap.get(key));
+        			break;
+        		}
+        	}
+        	
             QQ_GROUPS.put(g.getId(), g);
             GROUP_AD_TIME.put(g.getId(), 0L);
             UNPUSH_GROUPS.add(g.getId());

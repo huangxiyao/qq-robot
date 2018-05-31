@@ -261,6 +261,7 @@ public class SmartQQClient implements Closeable {
         JSONArray array = getJsonArrayResult(response);
         for (int i = 0; array != null && i < array.size(); i++) {
             JSONObject message = array.getJSONObject(i);
+            LOGGER.info("拉取数据：{}",message.getJSONObject("value"));
             String type = message.getString("poll_type");
             if ("message".equals(type)) {
                 callback.onMessage(new Message(message.getJSONObject("value")));
