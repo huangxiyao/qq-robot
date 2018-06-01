@@ -148,6 +148,7 @@ public class SmartQQClient implements Closeable {
         }
         LOGGER.info("二维码已保存在 " + filePath + " 文件中，请打开手机QQ并扫描二维码");
         ConfigRepository.put("finishInitQQFlag", "true");
+        ConfigRepository.get("initQQFlag");
     }
 
     //用于生成ptqrtoken的哈希函数

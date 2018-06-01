@@ -381,6 +381,11 @@ public class QQService {
         	LOGGER.error("Push message [" + msg + "] to groups failed", e);
         }
     }
+    
+    public void sendMessageToGroupByGroupId(String msg, long groupId, String name){
+    	LOGGER.info("发送" + msg + "] 到 QQ 群 [" + name + "]");
+        xiaoV.sendMessageToGroup(groupId, msg); // Without retry
+    }
 
     private void sendMessageToGroup(final Long groupId, final String msg) {
         Group group = QQ_GROUPS.get(groupId);
