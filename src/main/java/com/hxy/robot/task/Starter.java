@@ -17,17 +17,13 @@ package com.hxy.robot.task;
 
 import javax.annotation.PostConstruct;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.alibaba.fastjson.JSON;
 import com.hxy.robot.service.QQService;
 import com.hxy.util.CommandRepository;
-import com.hxy.util.ConfigRepository;
-import com.hxy.util.MapperRepository;
 import com.hxy.util.QQGroupRepository;
 
 @Service
