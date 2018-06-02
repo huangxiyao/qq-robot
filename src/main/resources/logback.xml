@@ -16,7 +16,7 @@
           <Prudent>true</Prudent> 
           <file>robot.log</file>
 		  <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			 <fileNamePattern>robot.%d{yyyy-MM-dd}.log</fileNamePattern>
+			 <fileNamePattern>/data/app/appLogs/robot.%d{yyyy-MM-dd}.log</fileNamePattern>
 		  </rollingPolicy>
           <layout class="ch.qos.logback.classic.PatternLayout">
                <Pattern>
