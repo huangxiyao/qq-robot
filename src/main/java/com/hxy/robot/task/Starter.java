@@ -40,6 +40,7 @@ public class Starter {
 	public void init(){
 		//初始化服务的qq群
 		QQGroupRepository.put("智能机器人", 0);
+		QQGroupRepository.put("家庭", 0);
 		QQGroupRepository.put("电影票", 1);
 		QQGroupRepository.put("党费", 2);
 		//定义服务种类
