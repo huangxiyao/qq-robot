@@ -89,6 +89,7 @@ public class ShowQRCodeHandler{
         			Thread.sleep(500l);
         			logger.info("等待登陆二维码生成");
         		}
+        		String url  = ConfigRepository.get("url");
         		//开始写回二维码图片
                 final String filePath = new File("qrcode.png").getCanonicalPath();
                 final byte[] data = IOUtils.toByteArray(new FileInputStream(filePath));
@@ -96,7 +97,7 @@ public class ShowQRCodeHandler{
                 		+ "<script src=\"http://code.jquery.com/jquery-1.7.2.min.js\"></script>"
                         + "<script>	var ref = \"\";"
                         + "function query(){"
-                        + "$.get(\"http://localhost:8080/loginAgain\","
+                        + "$.get(\"http://"+url+":8080/loginAgain\","
                         + 			"function(data,status){"
                         + 				"if(data.indexOf(\"qqIniting\") < 0){"
                         + 						"clearInterval(ref);"

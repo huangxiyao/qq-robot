@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import com.hxy.robot.service.QQService;
 import com.hxy.util.CommandRepository;
+import com.hxy.util.ConfigRepository;
 import com.hxy.util.QQGroupRepository;
 
 @Service
@@ -38,6 +39,7 @@ public class Starter {
 	 */
 	@PostConstruct
 	public void init(){
+		ConfigRepository.put("url", "139.224.22.135");
 		//初始化服务的qq群
 		QQGroupRepository.put("智能机器人", 0);
 		QQGroupRepository.put("家庭", 0);
