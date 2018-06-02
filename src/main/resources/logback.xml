@@ -3,9 +3,6 @@
     <contextName>logback</contextName>
     <!--输出到控制台-->
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
-       <!-- <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>ERROR</level>
-        </filter>-->
         <encoder>
             <pattern>%d{HH:mm:ss} [%thread] %-5level %logger{36} [%method] [%line] - %msg%n</pattern>
         </encoder>
@@ -16,7 +13,7 @@
           <Prudent>true</Prudent> 
           <file>robot.log</file>
 		  <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			 <fileNamePattern>robot.%d{yyyy-MM-dd}.log</fileNamePattern>
+			 <fileNamePattern>/data/appLogs/robot.%d{yyyy-MM-dd}.log</fileNamePattern>
 		  </rollingPolicy>
           <layout class="ch.qos.logback.classic.PatternLayout">
                <Pattern>
@@ -26,11 +23,6 @@
     </appender>
     
     <root level="info">
-        <appender-ref ref="console" />
         <appender-ref ref="logFile" />
     </root>
-
-    <!-- <logger name="com.pos" level="INFO" additivity="false">
-        <appender-ref ref="console"/>
-    </logger> -->
 </configuration>
