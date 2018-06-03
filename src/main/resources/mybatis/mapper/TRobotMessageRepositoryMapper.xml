@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="com.hxy.robot.dao.mapper.TRobotMessageRepositoryMapper">
+	<select id="select" resultType="TRobotMessageRepositoryDao">
+    	select
+    		SERVICE_TYPE serviceType, MSG_QUESTION msgQuestion,MSG_ANSWER msgAnswer,REVERSE1 reverse1, REVERSE2 reverse2, IS_EFFECTIVE isEffective
+		<![CDATA[
+    		from T_ROBOT_MESSAGE_REPOSITORY message
+    		where message.IS_EFFECTIVE = 'true'
+    		]]>
+	</select>
+	
+	<select id="getSelect" resultType="TRobotMessageRepositoryDao">
+    	select
+    		SERVICE_TYPE serviceType, MSG_QUESTION msgQuestion,MSG_ANSWER msgAnswer,REVERSE1 reverse1, REVERSE2 reverse2, IS_EFFECTIVE isEffective
+		<![CDATA[
+    		from T_ROBOT_MESSAGE_REPOSITORY message
+    		where rosev.IS_EFFECTIVE = 'true' and message.SERVICE_TYPE = #{servictType,jdbcType=INTEGER}
+    		]]>
+	</select>
+	
+	<select id="getSelectMapByServiceType" resultType="java.util.Map">
+    	select
+    		MSG_QUESTION msgQuestion, MSG_ANSWER msgAnswer
+		<![CDATA[
+    		from T_ROBOT_MESSAGE_REPOSITORY message
+    		where message.IS_EFFECTIVE = 'true' and message.SERVICE_TYPE = #{servictType,jdbcType=INTEGER
+    		]]>
+	</select>
+	
+	<insert id="insert" parameterType="TRobotMessageRepositoryDao">
+		<![CDATA[
+			INSERT INTO t_robot_message_repository (
+				SERVICE_TYPE, 
+				MSG_QUESTION,
+				MSG_ANSWER,
+				REVERSE1, 
+				REVERSE2 , 
+				IS_EFFECTIVE,
+				Created_By,
+				Created_At,
+				Updated_By,
+				Updated_At
+			) VALUES(
+				#{serviceType, jdbcType=INTEGER},
+				#{msgQuestion,jdbcType=VARCHAR},
+				#{msgAaswer,jdbcType=VARCHAR},
+				#{REVERSE1,jdbcType=VARCHAR},
+				#{REVERSE2,jdbcType=VARCHAR},
+				'true',
+				'system',
+				now(),
+				'system',
+				now()
+			)
+		]]>
+	</insert>
+</mapper>

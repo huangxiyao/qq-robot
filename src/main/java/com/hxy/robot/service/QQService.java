@@ -25,6 +25,8 @@ import com.hxy.robot.core.smartqq.model.Group;
 import com.hxy.robot.core.smartqq.model.GroupInfo;
 import com.hxy.robot.core.smartqq.model.GroupMessage;
 import com.hxy.robot.core.smartqq.model.Message;
+import com.hxy.robot.dao.mapper.TRobotServiceMapper;
+import com.hxy.robot.dao.model.TRobotServiceDao;
 import com.hxy.robot.service.baseservice.custom.InfomationProcessService;
 import com.hxy.robot.service.baseservice.robot.BaiduQueryService;
 import com.hxy.robot.service.baseservice.robot.ItpkQueryService;
@@ -57,6 +59,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.TimeUnit;
 
 /**
  * QQ service.
@@ -152,6 +155,9 @@ public class QQService {
     
     @Autowired(required = false)
     private InfomationProcessService infoProcessService;
+    
+	@Autowired
+	private TRobotServiceMapper serviceMapper;
     
     @Value("${qq.bot.key}")
     private String qqRobotKey;
@@ -252,10 +258,23 @@ public class QQService {
                 }).start();
             }
         });
+        
         reloadGroups();
         reloadDiscusses();
-        LOGGER.info("qq初始化完毕");
+        LOGGER.info("qq群组初始化完毕");
         ConfigRepository.put("finishInitQQFlag", "true");
+        //定时刷新群组映射关系
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+			@Override
+			public void run() {
+				try {
+					reloadGroups();
+			        reloadDiscusses();
+			        LOGGER.info("qq群组初始化完毕");
+				} catch (Exception e) {
+				}
+			}
+		}, 10 * 60 * 1000l, TimeUnit.MINUTES.toMillis(5));//立即执行，5分钟后第二次执行
     }
 
     private void sendToThird(final String msg, final String user) {
@@ -688,16 +707,18 @@ public class QQService {
 
         final StringBuilder msgBuilder = new StringBuilder();
         msgBuilder.append("Reloaded groups: \n");
+        //查询小薇服务的qq群，以及开通的服务类型
+        List<TRobotServiceDao> robotServices = serviceMapper.select();
         for (final Group g : groups) {
         	LOGGER.info("groupKey:"+Long.toString(g.getId())+ ", groupName:" +g.getName());
-        	//映射group到固定的方法
-        	Map<String, Integer> dataMap = QQGroupRepository.getDataMap();
-        	for(String key : dataMap.keySet()){
-        		LOGGER.info("Key:"+key+ ", type:" +key+ ", GroupValue:"+ dataMap.get(key));
-        		if((StringUtils.isNotEmpty(key) && key.contains(g.getName())) || (StringUtils.isNotEmpty(g.getName()) && g.getName().contains(key))){
-        			MapperRepository.put(Long.toString(g.getId()), dataMap.get(key));
-        			LOGGER.info("mapperKey:"+Long.toString(g.getId())+ ", type:" +key+ ", mapperValue:"+ dataMap.get(key));
-        			break;
+        	if(robotServices != null){
+        		for(TRobotServiceDao robot : robotServices){
+        			LOGGER.info("groupName:"+g.getName()+ ", robotService描述:" + robot.getServiceDesc() + ", robotServiceType:"+ robot.getServiceType());
+            		if((StringUtils.isNotEmpty(robot.getServiceDesc()) && robot.getServiceDesc().contains(g.getName())) || (StringUtils.isNotEmpty(g.getName()) && g.getName().contains(robot.getServiceDesc()))){
+            			MapperRepository.put(Long.toString(g.getId()), robot.getServiceType());
+            			LOGGER.info("mapperKey:"+Long.toString(g.getId())+ ", type:" +robot.getServiceType()+ ", mapperValue:"+ robot.getServiceDesc());
+            			break;
+            		}
         		}
         	}
         	

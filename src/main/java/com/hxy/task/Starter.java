@@ -15,6 +15,8 @@
  */
 package com.hxy.task;
 
+import java.util.List;
+
 import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
@@ -22,6 +24,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.alibaba.fastjson.JSON;
+import com.hxy.robot.dao.mapper.TRobotServiceMapper;
+import com.hxy.robot.dao.model.TRobotServiceDao;
 import com.hxy.robot.service.QQService;
 import com.hxy.util.CommandRepository;
 import com.hxy.util.ConfigRepository;
@@ -34,17 +39,22 @@ public class Starter {
 	@Autowired
 	private QQService qqService;
 	
+	@Autowired
+	private TRobotServiceMapper serviceMapper;
+	
 	/**
 	 * 初始化智能qq
 	 */
 	@PostConstruct
 	public void init(){
 		ConfigRepository.put("url", "139.224.22.135");
-		//初始化服务的qq群
-		QQGroupRepository.put("智能机器人", 0);
-		QQGroupRepository.put("家庭", 0);
-		QQGroupRepository.put("电影票", 1);
-		QQGroupRepository.put("党费", 2);
+		/**
+		 *  QQGroupRepository.put("智能机器人", 0);
+			QQGroupRepository.put("家庭", 0);
+		    QQGroupRepository.put("电影票", 1);
+		    QQGroupRepository.put("党费", 2);
+		 */
+		
 		//定义服务种类
 		//CommandRepository.put("0","该服务还没有提供啊，请稍后！");
 		CommandRepository.put("1","{\"电影票差异数据\":\"该服务还没有提供啊，请稍后！\",\"电影票订单出票量\":\"该服务还没有提供啊，请稍后！\"}");

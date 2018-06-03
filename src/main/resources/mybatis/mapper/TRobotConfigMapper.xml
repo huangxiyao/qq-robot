@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="com.hxy.robot.dao.mapper.TRobotConfigMapper">
+	<select id="select" resultType="TRobotConfigDao">
+    	select
+    		*
+		<![CDATA[
+    		from T_ROBOT_CONFIG cofig
+    		where cofig.IS_EFFECTIVE = 'true'
+    		]]>
+	</select>
+
+	<insert id="insert" parameterType="TRobotConfigDao">
+		<![CDATA[
+			INSERT INTO T_ROBOT_CONFIG (
+				CFG_KEY,
+				CFG_VALUE,
+				CFG_DESC,
+				IS_EFFECTIVE,
+				Created_By,
+				Created_At,
+				Updated_By,
+				Updated_At
+			) VALUES(
+				#{cfgKey, jdbcType=VARCHAR},
+				#{cfgValue,jdbcType=INTEGER},
+				#{cfgDesc,jdbcType=INTEGER},
+				'true',
+				'system',
+				now(),
+				'system',
+				now()
+			)
+		]]>
+	</insert>
+
+	<update id="update" parameterType="TRobotConfigDao">
+		update T_ROBOT_CONFIG
+		set
+			CFG_VALUE = #{cfgValue, jdbcType=VARCHAR},
+			CFG_DESC = #{cfgDesc,jdbcType=INTEGER},
+			Updated_By = 'system',
+			Updated_At = now(),
+			IS_EFFECTIVE = #{isEffective, jdbcType=VARCHAR}
+		where CFG_KEY = #{cfgKey,jdbcType=VARCHAR}
+	</update>
+
+	<delete id="delete" parameterType = "TRobotConfigDao">
+		update T_ROBOT_CONFIG
+			set IS_EFFECTIVE = 'false'
+			where CFG_KEY = #{cfgKey,jdbcType=VARCHAR}
+	</delete>
+</mapper>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="com.hxy.robot.dao.mapper.TRobotServiceMapper">
+	<select id="select" resultType="TRobotServiceDao">
+    	select
+    		SERVICE_TYPE serviceType, SERVICE_DESC serviceDesc,REVERSE1 reverse1, REVERSE2 reverse2, IS_EFFECTIVE isEffective
+		<![CDATA[
+    		from T_ROBOT_SERVICE rosev
+    		where rosev.IS_EFFECTIVE = 'true'
+    		]]>
+	</select>
+	
+
+	<insert id="insert" parameterType="TRobotServiceDao">
+		<![CDATA[
+			INSERT INTO T_ROBOT_SERVICE (
+				SERVICE_TYPE,
+				SERVICE_DESC,
+				REVERSE1,
+				REVERSE2
+				IS_EFFECTIVE,
+				Created_By,
+				Created_At,
+				Updated_By,
+				Updated_At
+			) VALUES(
+				#{serviceType, jdbcType=INTEGER},
+				#{serviceDesc,jdbcType=VARCHAR},
+				#{REVERSE1,jdbcType=VARCHAR},
+				#{REVERSE2,jdbcType=VARCHAR},
+				'true',
+				'system',
+				now(),
+				'system',
+				now()
+			)
+		]]>
+	</insert>
+
+	<update id="update" parameterType="TRobotServiceDao">
+		update T_ROBOT_SERVICE
+		set
+			SERVICE_DESC = #{SERVICE_DESC,jdbcType=VARCHAR},
+			Updated_By = 'system',
+			Updated_At = now(),
+			IS_EFFECTIVE = #{isEffective, jdbcType=VARCHAR}
+		where SERVICE_TYPE = #{serviceType,jdbcType=INTEGER}
+	</update>
+
+	<delete id="delete" parameterType = "TRobotServiceDao">
+		update T_ROBOT_SERVICE
+			set IS_EFFECTIVE = 'false'
+			where SERVICE_TYPE = #{serviceType,jdbcType=INTEGER}
+	</delete>
+</mapper>

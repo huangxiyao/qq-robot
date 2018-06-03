@@ -10,3 +10,5 @@ com.hxy.robot.task.Starter  可以在这里面配置相应的使用权限
 		CommandRepository.put("2","{\"党费账单\":\"该服务还没有提供啊！\",\"党费短信发送量\":\"该服务还没有提供啊，请稍等！\"}");
 2.登陆
 本地部署后：访问 localhost:8080/login
+3.如果想要自定义消息，侧可以实现接口 
+com.hxy.robot.service.baseservice.custom.InfomationProcessService
