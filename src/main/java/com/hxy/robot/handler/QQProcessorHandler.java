@@ -77,11 +77,10 @@ public class QQProcessorHandler {
      * @param response the specified response
      * @throws Exception exception
      */
-    @RequestMapping(value = "/qq",method=RequestMethod.POST)
+    @RequestMapping(value = "/sendMessage",method=RequestMethod.POST)
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody Response qq(@RequestBody RecieveQQMsg qqMsg) throws Exception {
         LOGGER.info("请求参数是：{}",JSON.toJSONString(qqMsg));
-        System.out.println("---------------");
     	final String key = qqBotKey;
     	Response res = new Response();
         if (!key.equals(qqMsg.getKey())) {

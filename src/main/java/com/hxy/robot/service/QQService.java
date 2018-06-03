@@ -17,14 +17,18 @@ package com.hxy.robot.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.hxy.robot.smartqq.callback.MessageCallback;
-import com.hxy.robot.smartqq.client.SmartQQClient;
-import com.hxy.robot.smartqq.model.Discuss;
-import com.hxy.robot.smartqq.model.DiscussMessage;
-import com.hxy.robot.smartqq.model.Group;
-import com.hxy.robot.smartqq.model.GroupInfo;
-import com.hxy.robot.smartqq.model.GroupMessage;
-import com.hxy.robot.smartqq.model.Message;
+import com.hxy.robot.core.smartqq.callback.MessageCallback;
+import com.hxy.robot.core.smartqq.client.SmartQQClient;
+import com.hxy.robot.core.smartqq.model.Discuss;
+import com.hxy.robot.core.smartqq.model.DiscussMessage;
+import com.hxy.robot.core.smartqq.model.Group;
+import com.hxy.robot.core.smartqq.model.GroupInfo;
+import com.hxy.robot.core.smartqq.model.GroupMessage;
+import com.hxy.robot.core.smartqq.model.Message;
+import com.hxy.robot.service.baseservice.custom.InfomationProcessService;
+import com.hxy.robot.service.baseservice.robot.BaiduQueryService;
+import com.hxy.robot.service.baseservice.robot.ItpkQueryService;
+import com.hxy.robot.service.baseservice.robot.TuringQueryService;
 import com.hxy.util.CommandRepository;
 import com.hxy.util.ConfigRepository;
 import com.hxy.util.MapperRepository;
@@ -146,6 +150,9 @@ public class QQService {
     @Autowired
     private ItpkQueryService itpkQueryService;
     
+    @Autowired(required = false)
+    private InfomationProcessService infoProcessService;
+    
     @Value("${qq.bot.key}")
     private String qqRobotKey;
     @Value("${third.api}")
@@ -245,10 +252,8 @@ public class QQService {
                 }).start();
             }
         });
-
         reloadGroups();
         reloadDiscusses();
-
         LOGGER.info("qq初始化完毕");
         ConfigRepository.put("finishInitQQFlag", "true");
     }
@@ -483,8 +488,14 @@ public class QQService {
     }
 
 
+    //向指定的群组发送消息
 	private void sendMessageToGroupID(final long groupId, final String content, Map<String,String> functionMap, final String userName, String msg) {
-		//默认机器人来回答
+		//自定义message的处理方式
+		if(infoProcessService != null){
+			msg = infoProcessService.processMessage(groupId, content, userName);
+			LOGGER.info("自定义infoPrpcessService,处理message,处理结果是:"+msg);
+		}else{
+			//默认机器人来回答
 			boolean anwserFlag = true;
 			if(functionMap != null){
 				for (String key : functionMap.keySet()) {  
@@ -499,31 +510,28 @@ public class QQService {
 				     }
 				}  
 			}
-			
+			//使用机器人回答问题
 			if(anwserFlag){
 				msg = answer(content, userName);
 		    }        	
-		    
-		    if (StringUtils.isBlank(msg)) {
-		        return;
-		    }
-
-		    if (RandomUtils.nextFloat() >= 0.9) {
-		        Long latestAdTime = GROUP_AD_TIME.get(groupId);
-		        if (null == latestAdTime) {
-		            latestAdTime = 0L;
-		        }
-
-		        final long now = System.currentTimeMillis();
-
-		        if (now - latestAdTime > 1000 * 60 * 30) {
-		            msg = msg + "。\n" + ADS.get(RandomUtils.nextInt(ADS.size()));
-
-		            GROUP_AD_TIME.put(groupId, now);
-		        }
-		    }
-
-		    sendMessageToGroup(groupId, msg);
+		}
+		//如果消息为空，则不发送信息
+		if (StringUtils.isBlank(msg)) {
+	        return;
+	    }
+	    if (RandomUtils.nextFloat() >= 0.9) {
+	        Long latestAdTime = GROUP_AD_TIME.get(groupId);
+	        if (null == latestAdTime) {
+	            latestAdTime = 0L;
+	        }
+	        final long now = System.currentTimeMillis();
+	        if (now - latestAdTime > 1000 * 60 * 30) {
+	            msg = msg + "。\n" + ADS.get(RandomUtils.nextInt(ADS.size()));
+	            GROUP_AD_TIME.put(groupId, now);
+	        }
+	    }
+		//发送信息到对应的群
+	    sendMessageToGroup(groupId, msg);
 	}
 
     private void onQQDiscussMessage(final DiscussMessage message) {
