@@ -25,7 +25,9 @@ import com.hxy.robot.core.smartqq.model.Group;
 import com.hxy.robot.core.smartqq.model.GroupInfo;
 import com.hxy.robot.core.smartqq.model.GroupMessage;
 import com.hxy.robot.core.smartqq.model.Message;
+import com.hxy.robot.dao.mapper.TRobotMessageRepositoryMapper;
 import com.hxy.robot.dao.mapper.TRobotServiceMapper;
+import com.hxy.robot.dao.model.TRobotMessageRepositoryDao;
 import com.hxy.robot.dao.model.TRobotServiceDao;
 import com.hxy.robot.service.baseservice.custom.InfomationProcessService;
 import com.hxy.robot.service.baseservice.robot.BaiduQueryService;
@@ -158,6 +160,9 @@ public class QQService {
     
 	@Autowired
 	private TRobotServiceMapper serviceMapper;
+	
+	@Autowired
+	private TRobotMessageRepositoryMapper messageMapper;
     
     @Value("${qq.bot.key}")
     private String qqRobotKey;
@@ -489,14 +494,14 @@ public class QQService {
             	case 1:
             		//电影票
             		LOGGER.info("电影票群访问入口");
-            		Map<String,String> mapd = JSON.parseObject(CommandRepository.get("1"), Map.class);
-            		sendMessageToGroupID(groupId, content, mapd, userName, msg);
+            		List<TRobotMessageRepositoryDao> messList = messageMapper.selectByServiceType(1);
+            		sendMessageToGroupID(groupId, content, messList, userName, msg);
             		break;
             	case 2:
             		//党费
             		LOGGER.info("党费群访问入口");
-            		Map<String,String> mapDangFei = JSON.parseObject(CommandRepository.get("2"), Map.class);
-            		sendMessageToGroupID(groupId, content, mapDangFei, userName, msg);
+            		List<TRobotMessageRepositoryDao> dangFeiMsgList = messageMapper.selectByServiceType(1);
+            		sendMessageToGroupID(groupId, content, dangFeiMsgList, userName, msg);
             		break;
             	default:
             		LOGGER.info("默认群访问入口");
@@ -508,7 +513,7 @@ public class QQService {
 
 
     //向指定的群组发送消息
-	private void sendMessageToGroupID(final long groupId, final String content, Map<String,String> functionMap, final String userName, String msg) {
+	private void sendMessageToGroupID(final long groupId, final String content, List<TRobotMessageRepositoryDao> msgList, final String userName, String msg) {
 		//自定义message的处理方式
 		if(infoProcessService != null){
 			msg = infoProcessService.processMessage(groupId, content, userName);
@@ -516,12 +521,13 @@ public class QQService {
 		}else{
 			//默认机器人来回答
 			boolean anwserFlag = true;
-			if(functionMap != null){
-				for (String key : functionMap.keySet()) {  
-				     String value = functionMap.get(key); 
+			if(msgList != null){
+				for (int i = 0;i < msgList.size();i++) { 
+					String msgQuestion = msgList.get(i).getMsgQuestion();
+				     String value = msgList.get(i).getMsgAnswer(); 
 				     String msgcontent = replaceBotName(content);
-				     LOGGER.info("key:"+key +", value:"+value);
-				     if((StringUtils.isNotEmpty(key) && key.contains(msgcontent) || (StringUtils.isNotEmpty(msgcontent) && msgcontent.contains(key)))){
+				     LOGGER.info("msgQuestion:"+msgQuestion +", value:"+value);
+				     if((StringUtils.isNotEmpty(msgQuestion) && msgQuestion.contains(msgcontent) || (StringUtils.isNotEmpty(msgcontent) && msgcontent.contains(msgQuestion)))){
 				    	 msg = value;
 				    	 //不让机器人自己回答
 				    	 anwserFlag = false;

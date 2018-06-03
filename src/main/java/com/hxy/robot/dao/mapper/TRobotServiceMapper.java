@@ -19,6 +19,8 @@ public interface TRobotServiceMapper {
      * @return
      */
     List<TRobotServiceDao> select();
+    @MapKey("serviceDesc")
+    Map<String,TRobotServiceDao> getSelectMap();
     int update(TRobotConfigDao config);
     int insert(TRobotConfigDao config) throws SQLIntegrityConstraintViolationException;
     int delete(TRobotConfigDao config);

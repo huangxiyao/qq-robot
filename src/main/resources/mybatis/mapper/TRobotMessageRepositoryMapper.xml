@@ -10,21 +10,21 @@
     		]]>
 	</select>
 	
-	<select id="getSelect" resultType="TRobotMessageRepositoryDao">
+	<select id="selectByServiceType" resultType="TRobotMessageRepositoryDao">
     	select
     		SERVICE_TYPE serviceType, MSG_QUESTION msgQuestion,MSG_ANSWER msgAnswer,REVERSE1 reverse1, REVERSE2 reverse2, IS_EFFECTIVE isEffective
 		<![CDATA[
     		from T_ROBOT_MESSAGE_REPOSITORY message
-    		where rosev.IS_EFFECTIVE = 'true' and message.SERVICE_TYPE = #{servictType,jdbcType=INTEGER}
+    		where message.IS_EFFECTIVE = 'true' and message.SERVICE_TYPE = #{serviceType,jdbcType=INTEGER}
     		]]>
 	</select>
 	
-	<select id="getSelectMapByServiceType" resultType="java.util.Map">
+	<select id="getSelectMapByServiceType" resultType="TRobotMessageRepositoryDao">
     	select
-    		MSG_QUESTION msgQuestion, MSG_ANSWER msgAnswer
+    		SERVICE_TYPE serviceType, MSG_QUESTION msgQuestion,MSG_ANSWER msgAnswer,REVERSE1 reverse1, REVERSE2 reverse2, IS_EFFECTIVE isEffective
 		<![CDATA[
     		from T_ROBOT_MESSAGE_REPOSITORY message
-    		where message.IS_EFFECTIVE = 'true' and message.SERVICE_TYPE = #{servictType,jdbcType=INTEGER
+    		where message.IS_EFFECTIVE = 'true' and message.SERVICE_TYPE = #{serviceType,jdbcType=INTEGER
     		]]>
 	</select>
 	

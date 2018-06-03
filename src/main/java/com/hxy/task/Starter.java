@@ -47,6 +47,7 @@ public class Starter {
 	 */
 	@PostConstruct
 	public void init(){
+		System.out.println(JSON.toJSONString(serviceMapper.getSelectMap()));
 		ConfigRepository.put("url", "139.224.22.135");
 		/**
 		 *  QQGroupRepository.put("智能机器人", 0);
@@ -57,8 +58,8 @@ public class Starter {
 		
 		//定义服务种类
 		//CommandRepository.put("0","该服务还没有提供啊，请稍后！");
-		CommandRepository.put("1","{\"电影票差异数据\":\"该服务还没有提供啊，请稍后！\",\"电影票订单出票量\":\"该服务还没有提供啊，请稍后！\"}");
-		CommandRepository.put("2","{\"党费账单\":\"该服务还没有提供啊！\",\"党费短信发送量\":\"该服务还没有提供啊，请稍等！\"}");
+		//CommandRepository.put("1","{\"电影票差异数据\":\"该服务还没有提供啊，请稍后！\",\"电影票订单出票量\":\"该服务还没有提供啊，请稍后！\"}");
+		//CommandRepository.put("2","{\"党费账单\":\"该服务还没有提供啊！\",\"党费短信发送量\":\"该服务还没有提供啊，请稍等！\"}");
 		
 	}
 }

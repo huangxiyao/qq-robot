@@ -19,7 +19,7 @@ public interface TRobotMessageRepositoryMapper {
     
     List<TRobotMessageRepositoryDao> selectByServiceType(@Param("serviceType") int type);
     @MapKey("msgQuestion")
-    Map<String,String> getSelectMapByServiceType(@Param("serviceType") int type);
+    Map<String,TRobotMessageRepositoryDao> getSelectMapByServiceType(@Param("serviceType") int type);
     int update(TRobotMessageRepositoryDao message);
     int insert(TRobotMessageRepositoryDao message) throws SQLIntegrityConstraintViolationException;
     int delete(TRobotMessageRepositoryDao message);
