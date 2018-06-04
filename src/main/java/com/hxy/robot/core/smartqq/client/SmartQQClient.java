@@ -389,11 +389,11 @@ public class SmartQQClient implements Closeable {
      */
     public List<Friend> getFriendList() {
         LOGGER.debug("开始获取好友列表");
-
+        
         JSONObject r = new JSONObject();
         r.put("vfwebqq", vfwebqq);
         r.put("hash", hash());
-
+        
         Response<String> response = post(ApiURL.GET_FRIEND_LIST, r);
         return new ArrayList<Friend>(parseFriendMap(getJsonObjectResult(response)).values());
     }

@@ -21,6 +21,7 @@ import com.hxy.robot.core.smartqq.callback.MessageCallback;
 import com.hxy.robot.core.smartqq.client.SmartQQClient;
 import com.hxy.robot.core.smartqq.model.Discuss;
 import com.hxy.robot.core.smartqq.model.DiscussMessage;
+import com.hxy.robot.core.smartqq.model.Friend;
 import com.hxy.robot.core.smartqq.model.Group;
 import com.hxy.robot.core.smartqq.model.GroupInfo;
 import com.hxy.robot.core.smartqq.model.GroupMessage;
@@ -29,12 +30,14 @@ import com.hxy.robot.dao.mapper.TRobotMessageRepositoryMapper;
 import com.hxy.robot.dao.mapper.TRobotServiceMapper;
 import com.hxy.robot.dao.model.TRobotMessageRepositoryDao;
 import com.hxy.robot.dao.model.TRobotServiceDao;
+import com.hxy.robot.integeration.electronic.ThirdProxy;
 import com.hxy.robot.service.baseservice.custom.InfomationProcessService;
 import com.hxy.robot.service.baseservice.robot.BaiduQueryService;
 import com.hxy.robot.service.baseservice.robot.ItpkQueryService;
 import com.hxy.robot.service.baseservice.robot.TuringQueryService;
 import com.hxy.util.CommandRepository;
 import com.hxy.util.ConfigRepository;
+import com.hxy.util.FriendRepository;
 import com.hxy.util.MapperRepository;
 import com.hxy.util.QQGroupRepository;
 
@@ -163,6 +166,9 @@ public class QQService {
 	
 	@Autowired
 	private TRobotMessageRepositoryMapper messageMapper;
+	
+	@Autowired
+	private ThirdProxy thirdProxy;
     
     @Value("${qq.bot.key}")
     private String qqRobotKey;
@@ -266,6 +272,7 @@ public class QQService {
         
         reloadGroups();
         reloadDiscusses();
+        reloadFriends();
         LOGGER.info("qq群组初始化完毕");
         ConfigRepository.put("finishInitQQFlag", "true");
         //定时刷新群组映射关系
@@ -275,6 +282,7 @@ public class QQService {
 				try {
 					reloadGroups();
 			        reloadDiscusses();
+			        reloadFriends();
 			        LOGGER.info("qq群组初始化完毕");
 				} catch (Exception e) {
 				}
@@ -430,7 +438,7 @@ public class QQService {
     	
     }
 
-    private void sendMessageToGroup(final Long groupId, final String msg) {
+    private void sendMessageToGroup(final Long groupId, final String msg, String userName) {
         Group group = QQ_GROUPS.get(groupId);
         if (null == group) {
             reloadGroups();
@@ -446,13 +454,17 @@ public class QQService {
         }
 
         LOGGER.info("Pushing [msg=" + msg + "] to QQ qun [" + group.getName() + "]");
-        if(StringUtils.isNotEmpty(msg) && msg.contains("\n")){
+        String preName = "";
+        if(StringUtils.isNotEmpty(userName) && FriendRepository.get(userName) != null){
+        	preName = "@"+FriendRepository.get(userName)+ "  ";
+        }
+        if(StringUtils.isNotEmpty(msg) && msg.contains("\n") && msg.length() > 300){
         	String[] msgs = msg.split("\n");
         	for(int i =0; i < msgs.length; i++){
-        		xiaoV.sendMessageToGroup(groupId, msgs[i]);
+        	   xiaoV.sendMessageToGroup(groupId, preName + msgs[i]);
         	}
         }else{
-        	xiaoV.sendMessageToGroup(groupId, msg);
+        	xiaoV.sendMessageToGroup(groupId, preName + msg);
         }
     }
 
@@ -480,7 +492,7 @@ public class QQService {
         final long groupId = message.getGroupId();
         
         final String content = message.getContent();
-        final String userName = Long.toHexString(message.getUserId());
+        final String userName = String.valueOf(message.getUserId());
         // Push to third system
         String qqMsg = content.replaceAll("\\[\"face\",[0-9]+\\]", "");
         if (StringUtils.isNotBlank(qqMsg)) {
@@ -494,7 +506,7 @@ public class QQService {
                 && (StringUtils.contains(content, "?") || StringUtils.contains(content, "？") || StringUtils.contains(content, "问")))) {
         	//判断当前机器人服务的群
         	if(MapperRepository.get(Long.toString(groupId)) == null){
-        		sendMessageToGroup(groupId, "尚未提供对应服务，请申请权限");
+        		sendMessageToGroup(groupId, "尚未提供对应服务，请申请权限", "");
         		return;
         	}
         	int actionType = MapperRepository.get(Long.toString(groupId));
@@ -541,8 +553,20 @@ public class QQService {
 				     String value = msgList.get(i).getMsgAnswer(); 
 				     String msgcontent = replaceBotName(content);
 				     LOGGER.info("msgQuestion:"+msgQuestion +", value:"+value);
-				     if((StringUtils.isNotEmpty(msgQuestion) && msgQuestion.contains(msgcontent) || (StringUtils.isNotEmpty(msgcontent) && msgcontent.contains(msgQuestion)))){
+				     if((StringUtils.isNotEmpty(msgQuestion) && msgQuestion.contains(msgcontent.trim()) || (StringUtils.isNotEmpty(msgcontent) && msgcontent.contains(msgQuestion.trim())))){
+				    	 if(StringUtils.contains(value, "http")){
+				    		 int index = value.lastIndexOf("/");
+				    		 String methodName = value.substring(index+1);
+				    		 Map<String,String> paramMap = new HashMap<>();
+				    		 String[] values = value.split("|");
+				    		 if(values.length > 1){
+				    			 //获取http地址的操作类型
+				    			 paramMap.put("queryType", values[0]);
+				    		 }
+				    		 value = thirdProxy.query(methodName, paramMap);
+				    	 }
 				    	 msg = value;
+				    	 msg = msg.replaceAll("\\\\n", "\n");
 				    	 //不让机器人自己回答
 				    	 anwserFlag = false;
 				    	 break; 
@@ -570,7 +594,7 @@ public class QQService {
 	        }
 	    }
 		//发送信息到对应的群
-	    sendMessageToGroup(groupId, msg);
+	    sendMessageToGroup(groupId, msg,userName);
 	}
 
     private void onQQDiscussMessage(final DiscussMessage message) {
@@ -617,19 +641,19 @@ public class QQService {
     private String replaceBotName(String msg) {
         if (StringUtils.isBlank(msg)) {
             return null;
-        }
-
-        if (msg.startsWith(qqRobotName + " ")) {
-            msg = msg.replace(qqRobotName + " ", "");
-        }
-        if (msg.startsWith(qqRobotName + "，")) {
-            msg = msg.replace(qqRobotName + "，", "");
-        }
-        if (msg.startsWith(qqRobotName + ",")) {
-            msg = msg.replace(qqRobotName + ",", "");
-        }
-        if (msg.startsWith(qqRobotName)) {
-            msg = msg.replace(qqRobotName, "");
+        }else if (msg.startsWith(qqRobotName + "，")) {
+            msg = StringUtils.trim(msg.replace(qqRobotName + "，", ""));
+        }else if (msg.startsWith(qqRobotName + ",")) {
+            msg = StringUtils.trim(msg.replace(qqRobotName + ",", ""));
+        }else if (msg.startsWith(qqRobotName + " ")) {
+        	msg = StringUtils.trim(msg.replace(qqRobotName + " ", ""));
+        	if(msg.startsWith(",")){
+        		msg = StringUtils.trim(msg.replace(",", ""));
+        	}else if(msg.startsWith("，")){
+        		msg = StringUtils.trim(msg.replace("，", ""));
+        	}
+        }else if(msg.startsWith(qqRobotName)) {
+            msg = StringUtils.trim(msg.replace(qqRobotName, ""));
         }
         return msg;
     }
@@ -766,5 +790,15 @@ public class QQService {
             msgBuilder.append("    ").append(d.getName()).append(": ").append(d.getId()).append("\n");
         }
         LOGGER.info(msgBuilder.toString());
+    }
+    
+    private void reloadFriends(){
+    	List<Friend> friends = xiaoV.getFriendList();
+    	LOGGER.info("好友列表：{}",JSON.toJSONString(friends));
+    	if(friends != null){
+    		for(Friend friend : friends){
+    			FriendRepository.put(String.valueOf(friend.getUserId()), friend.getNickname());
+    		}
+    	}
     }
 }
