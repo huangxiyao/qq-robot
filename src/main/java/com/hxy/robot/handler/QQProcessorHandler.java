@@ -91,7 +91,12 @@ public class QQProcessorHandler {
             return res;
         }
         */
+    	String serviceType = qqMsg.getType();
         String msg = qqMsg.getMessage();
+        if(StringUtils.isNotEmpty(qqMsg.getType())){
+        	qqService.sendMessageToGroupByGroupId(msg, qqMsg.getType());
+        }
+        
         if (StringUtils.isBlank(msg)) {
             LOGGER.warn("Empty msg body");
             res.setSuccess(false);
@@ -101,7 +106,6 @@ public class QQProcessorHandler {
         }
 
         LOGGER.info("Push QQ groups [msg=" + msg + "]");
-        qqService.sendToPushQQGroups(msg);
         res.setErrorCode("000000");
         res.setErrorDesc("成功！");
         res.setSuccess(true);

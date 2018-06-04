@@ -97,7 +97,7 @@ public class ShowQRCodeHandler{
                 		+ "<script src=\"http://code.jquery.com/jquery-1.7.2.min.js\"></script>"
                         + "<script>	var ref = \"\";"
                         + "function query(){"
-                        + "$.get(\"http://"+url+":8080/loginAgain\","
+                        + "$.get(\"http://"+url+"/loginAgain\","
                         + 			"function(data,status){"
                         + 				"if(data.indexOf(\"qqIniting\") < 0){"
                         + 						"clearInterval(ref);"
