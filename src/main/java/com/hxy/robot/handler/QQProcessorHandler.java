@@ -83,14 +83,15 @@ public class QQProcessorHandler {
         LOGGER.info("请求参数是：{}",JSON.toJSONString(qqMsg));
     	final String key = qqBotKey;
     	Response res = new Response();
-        if (!key.equals(qqMsg.getKey())) {
+        /*
+    	if (!key.equals(qqMsg.getKey())) {
         	res.setSuccess(false);
         	res.setErrorCode("999999");
         	res.setErrorDesc("SC_FORBIDDEN");
             return res;
         }
-
-        String msg = qqMsg.getMsg();
+        */
+        String msg = qqMsg.getMessage();
         if (StringUtils.isBlank(msg)) {
             LOGGER.warn("Empty msg body");
             res.setSuccess(false);

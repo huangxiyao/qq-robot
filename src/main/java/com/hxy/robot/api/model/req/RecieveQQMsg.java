@@ -16,7 +16,7 @@ public class RecieveQQMsg implements Serializable{
 	//信息类型
 	private String type;
 	//信息内容
-	private String msg;
+	private String message;
 	//备用字段集
 	private Map<String,String> reserveMap;
 	public String getTimestamp() {
@@ -43,11 +43,11 @@ public class RecieveQQMsg implements Serializable{
 	public void setType(String type) {
 		this.type = type;
 	}
-	public String getMsg() {
-		return msg;
+	public String getMessage() {
+		return message;
 	}
-	public void setMsg(String msg) {
-		this.msg = msg;
+	public void setMessage(String message) {
+		this.message = message;
 	}
 	public Map<String, String> getReserveMap() {
 		return reserveMap;
