@@ -415,6 +415,20 @@ public class QQService {
     	LOGGER.info("发送" + msg + "] 到 QQ 群 [" + name + "]");
         xiaoV.sendMessageToGroup(groupId, msg); // Without retry
     }
+    
+    public void sendMessageToGroupByGroupId(String msg, String type){
+    	ConcurrentHashMap<String, Integer> map = MapperRepository.getDataMap();
+    	String groupId = null;
+    	for(String key : map.keySet()){
+    		if(Integer.compare(map.get(key), Integer.valueOf(type)) == 0){
+    			groupId = key;
+    			LOGGER.info("已发送" + msg + "] ，服务类型： [" + type + "]");
+    	        xiaoV.sendMessageToGroup(Long.valueOf(groupId), msg); // Without retry
+    			break;
+    		}
+    	}
+    	
+    }
 
     private void sendMessageToGroup(final Long groupId, final String msg) {
         Group group = QQ_GROUPS.get(groupId);
