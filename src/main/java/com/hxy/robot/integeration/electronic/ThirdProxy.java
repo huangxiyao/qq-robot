@@ -47,9 +47,11 @@ public class ThirdProxy {
 				result = (String) resJsonObj.get("result");
 			}else{
 				logger.info("出票结果查询失败");
+				result = "出票数据查询失败";
 			}
 		} catch (Exception e) {
 			logger.error("机器人请求订单查询发生异常");
+			result = "服务未打通，请检查服务状态";
 		}
 		return result;
 	}
@@ -75,9 +77,11 @@ public class ThirdProxy {
 				result = (String) resJsonObj.get("result");
 			}else{
 				logger.info("差异数据结果查询失败");
+				result = "差异数据查询失败";
 			}
 		} catch (Exception e) {
 			logger.error("机器人请求差异数据结果发生异常");
+			result = "服务未打通，请检查服务状态";
 		}
 		return result;
 	}

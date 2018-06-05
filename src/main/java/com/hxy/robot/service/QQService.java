@@ -641,7 +641,11 @@ public class QQService {
     private String replaceBotName(String msg) {
         if (StringUtils.isBlank(msg)) {
             return null;
-        }else if (msg.startsWith(qqRobotName + "，")) {
+        }
+        if(msg.startsWith("@")){
+        	msg = StringUtils.trim(msg.replace("@", ""));
+        }
+        if (msg.startsWith(qqRobotName + "，")) {
             msg = StringUtils.trim(msg.replace(qqRobotName + "，", ""));
         }else if (msg.startsWith(qqRobotName + ",")) {
             msg = StringUtils.trim(msg.replace(qqRobotName + ",", ""));
