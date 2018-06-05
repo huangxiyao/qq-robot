@@ -432,7 +432,6 @@ public class QQService {
     			groupId = key;
     			LOGGER.info("已发送" + msg + "] ，服务类型： [" + type + "]");
     	        xiaoV.sendMessageToGroup(Long.valueOf(groupId), msg); // Without retry
-    			break;
     		}
     	}
     	
