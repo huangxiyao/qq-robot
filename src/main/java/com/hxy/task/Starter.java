@@ -47,7 +47,6 @@ public class Starter {
 	 */
 	@PostConstruct
 	public void init(){
-		System.out.println(JSON.toJSONString(serviceMapper.getSelectMap()));
 		ConfigRepository.put("url", "139.224.22.135");
 		/**
 		 *  QQGroupRepository.put("智能机器人", 0);

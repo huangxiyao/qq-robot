@@ -25,6 +25,7 @@ import com.hxy.robot.core.smartqq.model.Friend;
 import com.hxy.robot.core.smartqq.model.Group;
 import com.hxy.robot.core.smartqq.model.GroupInfo;
 import com.hxy.robot.core.smartqq.model.GroupMessage;
+import com.hxy.robot.core.smartqq.model.GroupUser;
 import com.hxy.robot.core.smartqq.model.Message;
 import com.hxy.robot.dao.mapper.TRobotMessageRepositoryMapper;
 import com.hxy.robot.dao.mapper.TRobotServiceMapper;
@@ -272,7 +273,6 @@ public class QQService {
         
         reloadGroups();
         reloadDiscusses();
-        reloadFriends();
         LOGGER.info("qq群组初始化完毕");
         ConfigRepository.put("finishInitQQFlag", "true");
         //定时刷新群组映射关系
@@ -754,7 +754,9 @@ public class QQService {
         //查询小薇服务的qq群，以及开通的服务类型
         List<TRobotServiceDao> robotServices = serviceMapper.select();
         for (final Group g : groups) {
-        	LOGGER.info("groupKey:"+Long.toString(g.getId())+ ", groupName:" +g.getName());
+        	LOGGER.info("groupKey:"+Long.toString(g.getId())+ ", groupName:" +g.getName()+"groupCode:"+g.getCode());
+        	//映射群组与本地服务的关系
+        	LOGGER.info("映射群组与本地机器人提供的服务关系》》》》》》》》》》》》》》》");
         	if(robotServices != null){
         		for(TRobotServiceDao robot : robotServices){
         			LOGGER.info("groupName:"+g.getName()+ ", robotService描述:" + robot.getServiceDesc() + ", robotServiceType:"+ robot.getServiceType());
@@ -764,6 +766,17 @@ public class QQService {
             			break;
             		}
         		}
+        	}
+        	//将群组成员信息封装到本地集合中
+        	LOGGER.info("将群组成员信息封装到本地集合中");
+        	GroupInfo ginfo = xiaoV.getGroupInfo(g.getCode());
+        	LOGGER.info("群组成员信息:{}",JSON.toJSONString(ginfo));
+        	List<GroupUser> groupUsers = ginfo.getUsers();
+        	if(groupUsers != null){
+        		for(GroupUser user : groupUsers){
+        			FriendRepository.put(String.valueOf(user.getUin()), user.getNick());
+        		}
+        			
         	}
         	
             QQ_GROUPS.put(g.getId(), g);
