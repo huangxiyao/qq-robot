@@ -47,7 +47,7 @@ public class Starter {
 	 */
 	@PostConstruct
 	public void init(){
-		ConfigRepository.put("url", "139.224.22.135");
+		//ConfigRepository.put("url", "139.224.22.135");
 		/**
 		 *  QQGroupRepository.put("智能机器人", 0);
 			QQGroupRepository.put("家庭", 0);

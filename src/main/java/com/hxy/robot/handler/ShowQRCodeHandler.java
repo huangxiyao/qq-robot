@@ -136,6 +136,7 @@ public class ShowQRCodeHandler{
         	if(Boolean.valueOf(ConfigRepository.get("qrCodeLoginFlag"))){
         		htmlBuilder.append("你已经登陆成功啦!");
                 ConfigRepository.put("initQQFlag","false");
+                LOGGER.info("你已经登陆成功啦!");
             }else if(Boolean.valueOf(ConfigRepository.get("initQQFlag"))){
             	//客服端反复调用后台请求参数
             	htmlBuilder.append("qqIniting");
