@@ -287,7 +287,7 @@ public class QQService {
 				} catch (Exception e) {
 				}
 			}
-		}, 10 * 60 * 1000l, TimeUnit.MINUTES.toMillis(10));//立即执行，5分钟后第二次执行
+		}, 10 * 60 * 1000l, TimeUnit.MINUTES.toMillis(60));//立即执行，5分钟后第二次执行
     }
 
     private void sendToThird(final String msg, final String user) {
