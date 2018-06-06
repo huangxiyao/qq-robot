@@ -678,6 +678,7 @@ public class SmartQQClient implements Closeable {
         if (errCode != null && errCode == 0) {
             LOGGER.info("qq发送到群消息成功");
         } else {
+        	LOGGER.error("发送消息返回result："+json.toJSONString());
             LOGGER.error(String.format("发送失败，Api返回码[%d]", json.getInteger("retcode")));
         }
     }
