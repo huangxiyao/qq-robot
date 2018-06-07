@@ -548,19 +548,26 @@ public class QQService {
 				for (int i = 0;i < msgList.size();i++) { 
 					String msgQuestion = msgList.get(i).getMsgQuestion();
 				     String value = msgList.get(i).getMsgAnswer(); 
+				     if(value != null){
+				    	 //去掉value两边的空格
+				    	 value = value.toString();
+				     }
 				     String msgcontent = replaceBotName(content);
 				     LOGGER.info("msgQuestion:"+msgQuestion +", value:"+value);
 				     if((StringUtils.isNotEmpty(msgQuestion) && msgQuestion.contains(msgcontent.trim()) || (StringUtils.isNotEmpty(msgcontent) && msgcontent.contains(msgQuestion.trim())))){
 				    	 if(StringUtils.contains(value, "http")){
-				    		 int index = value.lastIndexOf("/");
-				    		 String methodName = value.substring(index+1);
-				    		 Map<String,String> paramMap = new HashMap<>();
-				    		 String[] values = value.split("|");
-				    		 if(values.length > 1){
-				    			 //获取http地址的操作类型
-				    			 paramMap.put("queryType", values[0]);
+				    		 //如果value中含有http并且以-1|开头，则代表这个http地址是按照文本来提供显示的，不用来访问到远程
+				    		 if(value.startsWith("http") || StringUtils.contains(value, "|http")){
+				    			 int index = value.lastIndexOf("/");
+					    		 String methodName = value.substring(index+1);
+					    		 Map<String,String> paramMap = new HashMap<>();
+					    		 String[] values = value.split("|");
+					    		 if(values.length > 1){
+					    			 //获取http地址的操作类型
+					    			 paramMap.put("queryType", values[0]);
+					    		 }
+					    		 value = thirdProxy.query(methodName, paramMap);
 				    		 }
-				    		 value = thirdProxy.query(methodName, paramMap);
 				    	 }
 				    	 msg = value;
 				    	 msg = msg.replaceAll("\\\\n", "\n");
