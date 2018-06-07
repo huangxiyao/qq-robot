@@ -36,11 +36,9 @@ import com.hxy.robot.service.baseservice.custom.InfomationProcessService;
 import com.hxy.robot.service.baseservice.robot.BaiduQueryService;
 import com.hxy.robot.service.baseservice.robot.ItpkQueryService;
 import com.hxy.robot.service.baseservice.robot.TuringQueryService;
-import com.hxy.util.CommandRepository;
 import com.hxy.util.ConfigRepository;
 import com.hxy.util.FriendRepository;
 import com.hxy.util.MapperRepository;
-import com.hxy.util.QQGroupRepository;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -525,7 +523,7 @@ public class QQService {
             	case 2:
             		//党费
             		LOGGER.info("党费群访问入口");
-            		List<TRobotMessageRepositoryDao> dangFeiMsgList = messageMapper.selectByServiceType(1);
+            		List<TRobotMessageRepositoryDao> dangFeiMsgList = messageMapper.selectByServiceType(2);
             		sendMessageToGroupID(groupId, content, dangFeiMsgList, userName, msg);
             		break;
             	default:
