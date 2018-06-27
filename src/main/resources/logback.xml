@@ -13,7 +13,7 @@
 
     <!--按天生成日志-->
     <appender name="logFile"  class="ch.qos.logback.core.rolling.RollingFileAppender">
-          <file>robot.log</file>
+          <file>/data/logs/qq-robot/robot.log</file>
 		  <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			 <fileNamePattern>/data/logs/qq-robot/robot.%d{yyyy-MM-dd}.log</fileNamePattern>
 		  </rollingPolicy>
