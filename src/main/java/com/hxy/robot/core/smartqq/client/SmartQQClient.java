@@ -124,6 +124,8 @@ public class SmartQQClient implements Closeable {
         //登录成功欢迎语
         UserInfo userInfo = getAccountInfo();
         LOGGER.info(userInfo.getNick() + "，欢迎！");
+        //登陆成功了
+        ConfigRepository.put("qrCodeLoginFlag", "true");
     }
 
     //登录流程1：获取二维码
@@ -172,14 +174,13 @@ public class SmartQQClient implements Closeable {
                 for (String content : result.split("','")) {
                     if (content.startsWith("http")) {
                         LOGGER.info("正在登录，请稍后");
-                        //登陆成功了
-                        ConfigRepository.put("qrCodeLoginFlag", "true");
                         return content;
                     }
                 }
             } else if (result.contains("已失效")) {
                 LOGGER.info("二维码已失效，尝试重新获取二维码");
-                getQRCode();
+                return "verifyQRCode";
+                //getQRCode();
             }
         }
 
