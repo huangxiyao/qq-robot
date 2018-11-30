@@ -81,7 +81,7 @@ public class SmartQQClient implements Closeable {
 
 
     public SmartQQClient(final MessageCallback callback) {
-        this.client = Client.pooled().maxPerRoute(5).socketTimeout(60000).connectTimeout(60000).maxTotal(10).build();
+        this.client = Client.pooled().maxPerRoute(5).socketTimeout(60000).connectTimeout(10000).maxTotal(10).build();
         this.session = client.session();
         login();
         if (callback != null) {
@@ -651,7 +651,11 @@ public class SmartQQClient implements Closeable {
         int times = 0;
         Response<String> response;
         do {
-            response = post(url, r);
+            try {
+                response = post(url, r);
+            }catch (Exception e){
+                response = post(url, r);
+            }
             times++;
         } while (times < RETRY_TIMES && response.getStatusCode() != 200);
         return response;
