@@ -22,10 +22,7 @@ import com.hxy.robot.core.smartqq.model.Recent;
 import com.hxy.robot.core.smartqq.model.UserInfo;
 import com.hxy.util.ConfigRepository;
 
-import net.dongliu.requests.Client;
-import net.dongliu.requests.HeadOnlyRequestBuilder;
-import net.dongliu.requests.Response;
-import net.dongliu.requests.Session;
+import net.dongliu.requests.*;
 import net.dongliu.requests.exception.RequestException;
 import net.dongliu.requests.struct.Cookie;
 
@@ -84,7 +81,7 @@ public class SmartQQClient implements Closeable {
 
 
     public SmartQQClient(final MessageCallback callback) {
-        this.client = Client.pooled().maxPerRoute(5).maxTotal(10).build();
+        this.client = Client.pooled().maxPerRoute(5).socketTimeout(60).connectTimeout(60).maxTotal(10).build();
         this.session = client.session();
         login();
         if (callback != null) {
@@ -635,7 +632,7 @@ public class SmartQQClient implements Closeable {
         if (url.getReferer() != null) {
             request.addHeader("Referer", url.getReferer());
         }
-        return request.text(StandardCharsets.UTF_8); 
+        return request.text(StandardCharsets.UTF_8);
     }
 
     //发送post请求
