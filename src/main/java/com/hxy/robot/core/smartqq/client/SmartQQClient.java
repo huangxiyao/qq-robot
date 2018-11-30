@@ -654,6 +654,7 @@ public class SmartQQClient implements Closeable {
             try {
                 response = post(url, r);
             }catch (Exception e){
+                LOGGER.error("出现了异常,准备重试发送，异常信息是：",e);
                 response = post(url, r);
             }
             times++;
