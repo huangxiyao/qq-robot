@@ -81,7 +81,7 @@ public class SmartQQClient implements Closeable {
 
 
     public SmartQQClient(final MessageCallback callback) {
-        this.client = Client.pooled().maxPerRoute(5).maxTotal(10).build();
+        this.client = Client.pooled().maxPerRoute(10).maxTotal(20).build();
         this.session = client.session();
         login();
         if (callback != null) {
@@ -654,6 +654,8 @@ public class SmartQQClient implements Closeable {
             try {
                 response = post(url, r);
             }catch (Exception e){
+                //停留一秒再进行发送
+                sleep(1);
                 LOGGER.error("出现了异常,准备重试发送，异常信息是：",e);
                 response = post(url, r);
             }
